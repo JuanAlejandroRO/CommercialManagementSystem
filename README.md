@@ -1,0 +1,1 @@
+Este proyecto es una API REST desarrollada con .NET 8 que simula un sistema de gestión comercial. Implementa arquitectura limpia separando las capas Domain, Application, Infrastructure y API. Incluye operaciones CRUD de productos, uso de Entity Framework Core, inyección de dependencias y conexión a SQL Server.
