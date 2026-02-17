@@ -1,0 +1,6 @@
+@CommercialManagementSystem_HostAddress = http://localhost:5287
+
+GET {{CommercialManagementSystem_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
