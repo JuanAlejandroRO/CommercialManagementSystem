@@ -11,6 +11,9 @@ public interface IProductRepository
     //Agregado 16/02/2026
     Task UpdateAsync(Product product);
 
+    //Agregado 17/02/2026
+    Task DeleteAsync(Guid id);
+
 }
 
 
