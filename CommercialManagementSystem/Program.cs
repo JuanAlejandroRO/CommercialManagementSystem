@@ -2,6 +2,8 @@ using CMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using CMS.Infrastructure.Repositories;
 using CMS.Application.Interfaces;
+using CMS.Application.Services;
+using CMS.Infrastructure.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +17,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+// Repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+// Services
+builder.Services.AddScoped<IProductService, ProductService>();
 
 
 

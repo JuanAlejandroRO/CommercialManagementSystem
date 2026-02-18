@@ -1,42 +1,34 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Application.Interfaces;
+using CMS.Application.Services;
 using CMS.Domain.Entities;
-using Microsoft.AspNetCore.Mvc;
 
-namespace CMS.API.Controllers;
+namespace CMS.Infrastructure.Services;
 
-[ApiController]
-[Route("api/[controller]")]
-public class ProductsController : ControllerBase
+public class ProductService : IProductService
 {
     private readonly IProductRepository _repository;
 
-    public ProductsController(IProductRepository repository)
+    public ProductService(IProductRepository repository)
     {
         _repository = repository;
     }
 
-    // GET: api/products
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<List<ProductResponseDto>> GetAllAsync()
     {
         var products = await _repository.GetAllAsync();
 
-        var response = products.Select(p => new ProductResponseDto
+        return products.Select(p => new ProductResponseDto
         {
             Id = p.Id,
             Name = p.Name,
             Price = p.Price,
             Stock = p.Stock,
             IsActive = p.IsActive
-        });
-
-        return Ok(response);
+        }).ToList();
     }
 
-    // POST: api/products
-    [HttpPost]
-    public async Task<IActionResult> Create(ProductCreateDto dto)
+    public async Task<ProductResponseDto> CreateAsync(ProductCreateDto dto)
     {
         var product = new Product
         {
@@ -44,29 +36,27 @@ public class ProductsController : ControllerBase
             Name = dto.Name,
             Price = dto.Price,
             Stock = dto.Stock,
-            IsActive = true
+            IsActive = dto.IsActive
         };
 
         await _repository.AddAsync(product);
 
-        return Ok(new ProductResponseDto
+        return new ProductResponseDto
         {
             Id = product.Id,
             Name = product.Name,
             Price = product.Price,
             Stock = product.Stock,
             IsActive = product.IsActive
-        });
+        };
     }
 
-    // PUT: api/products/{id}
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, ProductUpdateDto dto)
+    public async Task<ProductResponseDto?> UpdateAsync(Guid id, ProductUpdateDto dto)
     {
         var product = await _repository.GetByIdAsync(id);
 
         if (product == null)
-            return NotFound();
+            return null;
 
         product.Name = dto.Name;
         product.Price = dto.Price;
@@ -75,28 +65,29 @@ public class ProductsController : ControllerBase
 
         await _repository.UpdateAsync(product);
 
-        return Ok(new ProductResponseDto
+        return new ProductResponseDto
         {
             Id = product.Id,
             Name = product.Name,
             Price = product.Price,
             Stock = product.Stock,
             IsActive = product.IsActive
-        });
+        };
     }
 
-    // DELETE: api/products/{id}
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<ProductResponseDto?> GetByIdAsync(Guid id)
     {
-        var product = await _repository.GetByIdAsync(id);
+        var p = await _repository.GetByIdAsync(id);
 
-        if (product == null)
-            return NotFound();
+        if (p == null) return null;
 
-        await _repository.DeleteAsync(id);
-
-        return NoContent();
+        return new ProductResponseDto
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Price = p.Price,
+            Stock = p.Stock,
+            IsActive = p.IsActive
+        };
     }
-
 }
