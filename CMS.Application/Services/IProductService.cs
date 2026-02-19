@@ -8,4 +8,7 @@ public interface IProductService
     Task<ProductResponseDto?> GetByIdAsync(Guid id);
     Task<ProductResponseDto> CreateAsync(ProductCreateDto dto);
     Task<ProductResponseDto?> UpdateAsync(Guid id, ProductUpdateDto dto);
+
+    // Metodo borrado
+    Task<bool> DeleteAsync(Guid id);
 }

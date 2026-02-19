@@ -1,9 +1,10 @@
-using CMS.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-using CMS.Infrastructure.Repositories;
+using CMS.API.Middleware;
 using CMS.Application.Interfaces;
 using CMS.Application.Services;
+using CMS.Infrastructure.Persistence;
+using CMS.Infrastructure.Repositories;
 using CMS.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,8 @@ builder.Services.AddScoped<IProductService, ProductService>();
 
 
 
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -34,6 +37,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseAuthorization();
 

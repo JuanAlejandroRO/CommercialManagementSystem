@@ -99,4 +99,12 @@ public class ProductsController : ControllerBase
         return NoContent();
     }
 
+    // Comprobación de prueba de error para el middleware
+    [HttpGet("test-error")]
+    public IActionResult TestError()
+    {
+        throw new Exception("Error de prueba");
+    }
+
+
 }

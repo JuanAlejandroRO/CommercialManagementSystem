@@ -28,6 +28,22 @@ public class ProductService : IProductService
         }).ToList();
     }
 
+    public async Task<ProductResponseDto?> GetByIdAsync(Guid id)
+    {
+        var p = await _repository.GetByIdAsync(id);
+
+        if (p == null) return null;
+
+        return new ProductResponseDto
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Price = p.Price,
+            Stock = p.Stock,
+            IsActive = p.IsActive
+        };
+    }
+
     public async Task<ProductResponseDto> CreateAsync(ProductCreateDto dto)
     {
         var product = new Product
@@ -36,7 +52,7 @@ public class ProductService : IProductService
             Name = dto.Name,
             Price = dto.Price,
             Stock = dto.Stock,
-            IsActive = dto.IsActive
+            IsActive = true //siempre activo al crear
         };
 
         await _repository.AddAsync(product);
@@ -75,19 +91,19 @@ public class ProductService : IProductService
         };
     }
 
-    public async Task<ProductResponseDto?> GetByIdAsync(Guid id)
+    //NUEVO MÉTODO — SOFT DELETE
+    public async Task<bool> DeleteAsync(Guid id)
     {
-        var p = await _repository.GetByIdAsync(id);
+        var product = await _repository.GetByIdAsync(id);
 
-        if (p == null) return null;
+        if (product == null)
+            return false;
 
-        return new ProductResponseDto
-        {
-            Id = p.Id,
-            Name = p.Name,
-            Price = p.Price,
-            Stock = p.Stock,
-            IsActive = p.IsActive
-        };
+        // Soft Delete 
+        product.IsActive = false;
+
+        await _repository.UpdateAsync(product);
+
+        return true;
     }
 }
