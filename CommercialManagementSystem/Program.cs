@@ -1,6 +1,5 @@
 using CMS.API.Middleware;
 using CMS.Application.Interfaces;
-using CMS.Application.Services;
 using CMS.Infrastructure.Persistence;
 using CMS.Infrastructure.Repositories;
 using CMS.Infrastructure.Services;
@@ -22,6 +21,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 // Services
 builder.Services.AddScoped<IProductService, ProductService>();
+
 
 
 

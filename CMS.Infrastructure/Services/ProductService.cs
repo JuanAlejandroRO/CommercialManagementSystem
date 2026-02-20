@@ -1,7 +1,6 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Application.Interfaces;
-using CMS.Application.Services;
-using CMS.Domain.Entities;
+using CMS.Application.Mappers;
 
 namespace CMS.Infrastructure.Services;
 
@@ -14,84 +13,41 @@ public class ProductService : IProductService
         _repository = repository;
     }
 
-    public async Task<List<ProductResponseDto>> GetAllAsync()
+    public async Task<IEnumerable<ProductResponseDto>> GetAllAsync()
     {
         var products = await _repository.GetAllAsync();
-
-        return products.Select(p => new ProductResponseDto
-        {
-            Id = p.Id,
-            Name = p.Name,
-            Price = p.Price,
-            Stock = p.Stock,
-            IsActive = p.IsActive
-        }).ToList();
+        return products.Select(p => p.ToDto());
     }
 
     public async Task<ProductResponseDto?> GetByIdAsync(Guid id)
     {
-        var p = await _repository.GetByIdAsync(id);
-
-        if (p == null) return null;
-
-        return new ProductResponseDto
-        {
-            Id = p.Id,
-            Name = p.Name,
-            Price = p.Price,
-            Stock = p.Stock,
-            IsActive = p.IsActive
-        };
+        var product = await _repository.GetByIdAsync(id);
+        return product?.ToDto();
     }
 
     public async Task<ProductResponseDto> CreateAsync(ProductCreateDto dto)
     {
-        var product = new Product
-        {
-            Id = Guid.NewGuid(),
-            Name = dto.Name,
-            Price = dto.Price,
-            Stock = dto.Stock,
-            IsActive = true //siempre activo al crear
-        };
+        var product = dto.ToEntity();
 
         await _repository.AddAsync(product);
 
-        return new ProductResponseDto
-        {
-            Id = product.Id,
-            Name = product.Name,
-            Price = product.Price,
-            Stock = product.Stock,
-            IsActive = product.IsActive
-        };
+        return product.ToDto();
     }
 
-    public async Task<ProductResponseDto?> UpdateAsync(Guid id, ProductUpdateDto dto)
+    public async Task<bool> UpdateAsync(Guid id, ProductUpdateDto dto)
     {
         var product = await _repository.GetByIdAsync(id);
 
         if (product == null)
-            return null;
+            return false;
 
-        product.Name = dto.Name;
-        product.Price = dto.Price;
-        product.Stock = dto.Stock;
-        product.IsActive = dto.IsActive;
+        product.UpdateEntity(dto);
 
         await _repository.UpdateAsync(product);
 
-        return new ProductResponseDto
-        {
-            Id = product.Id,
-            Name = product.Name,
-            Price = product.Price,
-            Stock = product.Stock,
-            IsActive = product.IsActive
-        };
+        return true;
     }
 
-    //NUEVO MÉTODO — SOFT DELETE
     public async Task<bool> DeleteAsync(Guid id)
     {
         var product = await _repository.GetByIdAsync(id);
@@ -99,8 +55,8 @@ public class ProductService : IProductService
         if (product == null)
             return false;
 
-        // Soft Delete 
-        product.IsActive = false;
+        // soft delete
+        product.IsActive = false; 
 
         await _repository.UpdateAsync(product);
 

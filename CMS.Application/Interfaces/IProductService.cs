@@ -1,14 +1,12 @@
 ﻿using CMS.Application.DTOs;
 
-namespace CMS.Application.Services;
+namespace CMS.Application.Interfaces;
 
 public interface IProductService
 {
-    Task<List<ProductResponseDto>> GetAllAsync();
+    Task<IEnumerable<ProductResponseDto>> GetAllAsync();
     Task<ProductResponseDto?> GetByIdAsync(Guid id);
     Task<ProductResponseDto> CreateAsync(ProductCreateDto dto);
-    Task<ProductResponseDto?> UpdateAsync(Guid id, ProductUpdateDto dto);
-
-    // Metodo borrado
+    Task<bool> UpdateAsync(Guid id, ProductUpdateDto dto);
     Task<bool> DeleteAsync(Guid id);
 }
