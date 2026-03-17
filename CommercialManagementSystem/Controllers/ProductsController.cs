@@ -1,6 +1,5 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Application.Interfaces;
-using CMS.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CMS.API.Controllers;
@@ -9,102 +8,70 @@ namespace CMS.API.Controllers;
 [Route("api/[controller]")]
 public class ProductsController : ControllerBase
 {
-    private readonly IProductRepository _repository;
+    private readonly IProductService _service;
 
-    public ProductsController(IProductRepository repository)
+    public ProductsController(IProductService service)
     {
-        _repository = repository;
+        _service = service;
     }
 
     // GET: api/products
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var products = await _repository.GetAllAsync();
+        var products = await _service.GetAllAsync();
+        return Ok(products);
+    }
 
-        var response = products.Select(p => new ProductResponseDto
-        {
-            Id = p.Id,
-            Name = p.Name,
-            Price = p.Price,
-            Stock = p.Stock,
-            IsActive = p.IsActive
-        });
+    // GET: api/products/{id}
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var product = await _service.GetByIdAsync(id);
 
-        return Ok(response);
+        if (product == null)
+            return NotFound();
+
+        return Ok(product);
     }
 
     // POST: api/products
     [HttpPost]
     public async Task<IActionResult> Create(ProductCreateDto dto)
     {
-        var product = new Product
-        {
-            Id = Guid.NewGuid(),
-            Name = dto.Name,
-            Price = dto.Price,
-            Stock = dto.Stock,
-            IsActive = true
-        };
+        var product = await _service.CreateAsync(dto);
 
-        await _repository.AddAsync(product);
-
-        return Ok(new ProductResponseDto
-        {
-            Id = product.Id,
-            Name = product.Name,
-            Price = product.Price,
-            Stock = product.Stock,
-            IsActive = product.IsActive
-        });
+        return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
     }
 
     // PUT: api/products/{id}
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, ProductUpdateDto dto)
     {
-        var product = await _repository.GetByIdAsync(id);
+        var updated = await _service.UpdateAsync(id, dto);
 
-        if (product == null)
+        if (!updated)
             return NotFound();
 
-        product.Name = dto.Name;
-        product.Price = dto.Price;
-        product.Stock = dto.Stock;
-        product.IsActive = dto.IsActive;
-
-        await _repository.UpdateAsync(product);
-
-        return Ok(new ProductResponseDto
-        {
-            Id = product.Id,
-            Name = product.Name,
-            Price = product.Price,
-            Stock = product.Stock,
-            IsActive = product.IsActive
-        });
+        return NoContent();
     }
 
     // DELETE: api/products/{id}
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var product = await _repository.GetByIdAsync(id);
+        var deleted = await _service.DeleteAsync(id);
 
-        if (product == null)
+        if (!deleted)
             return NotFound();
-
-        await _repository.DeleteAsync(id);
 
         return NoContent();
     }
 
-    // Comprobación de prueba de error para el middleware
+    // Middleware test
     [HttpGet("test-error")]
     public IActionResult TestError()
     {
         throw new Exception("Error de prueba");
     }
-
-
 }
